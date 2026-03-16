@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Report Issue{% endblock %}
+{% block content %}
+
+<div style="margin-bottom:1.25rem">
+  <h2 style="font-size:18px;font-weight:700;color:#c0001d;display:flex;align-items:center;gap:8px">⚠️ Report Campus Issue <span style="font-size:13px;font-weight:400;color:#888">— AI Classification</span></h2>
+</div>
+
+<div style="display:grid;grid-template-columns:1.2fr .8fr;gap:1.25rem;align-items:start">
+
+  <div>
+    <div class="card">
+      <div class="card-title">📋 Issue Details</div>
+      <form method="POST" enctype="multipart/form-data" id="iform">
+        <div class="fgroup">
+          <span class="label">Upload Photo (Optional)</span>
+          <div class="img-drop" id="drop" onclick="document.getElementById('imgf').click()">
+            <div style="font-size:28px;margin-bottom:6px">📷</div>
+            <div style="font-weight:500">Click to upload photo</div>
+            <div style="font-size:11px;color:#aaa;margin-top:3px">JPG, PNG — Max 5MB</div>
+            <input type="file" id="imgf" name="image" accept="image/*" style="display:none" onchange="prev(event)">
+          </div>
+          <img id="imgprev" class="img-preview" alt="preview">
+        </div>
+        <div class="fgroup">
+          <span class="label">Describe the Issue</span>
+          <textarea name="description" placeholder="E.g. Lost my laptop charger..."></textarea>
+        </div>
+        <div class="fgroup">
+          <span class="label">Location</span>
+          <select name="location">
+            <option value="">-- Select Location --</option>
+            <option>Library</option><option>Canteen</option><option>Lecture Hall A</option>
+            <option>Lecture Hall B</option><option>Computer Lab</option><option>Sports Complex</option>
+            <option>Hostel Block</option><option>Admin Building</option><option>Parking Area</option>
+            <option>Washroom</option><option>Corridor / Hallway</option><option>Campus Road</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-p" style="width:100%" id="ibtn">
+          <span id="ispin" class="spin" style="display:none"></span>
+          <span id="itxt">🤖 Generate AI Report</span>
+        </button>
+      </form>
+    </div>
+
+    {% if result %}
+    <div class="result-box">
+      <div class="r-title">📋 Campus Issue Report — Gemini AI</div>
+      <div class="r-row"><span class="r-key">Issue Type</span><span class="r-val" style="font-weight:600">{{ result.issue_type or '—' }}</span></div>
+      <div class="r-row"><span class="r-key">Severity</span><span class="r-val">
+        {% set s=result.severity %}
+        {% if s=='High' %}<span class="badge b-red">🔴 High Priority</span>
+        {% elif s=='Medium' %}<span class="badge b-amber">🟡 Medium</span>
+        {% else %}<span class="badge b-green">🟢 Low</span>{% endif %}
+      </span></div>
+      <div class="r-row"><span class="r-key">Description</span><span class="r-val">{{ result.description or '—' }}</span></div>
+      <div class="r-row"><span class="r-key">Location</span><span class="r-val">{{ result.probable_location or '—' }}</span></div>
+      <div class="r-row"><span class="r-key">Suggested Action</span><span class="r-val" style="color:#2e7d32;font-weight:500">{{ result.suggested_action or '—' }}</span></div>
+      <div class="r-row"><span class="r-key">Department</span><span class="r-val"><span class="badge b-purple">{{ result.department or 'Maintenance' }}</span></span></div>
+      <div class="r-row"><span class="r-key">Est. Resolution</span><span class="r-val">{{ result.estimated_resolution or '—' }}</span></div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <div class="card">
+      <div class="card-title">📌 Issue Categories</div>
+      {% for ico,lbl,desc in [('💧','Water Leakage','Pipes, taps, drainage'),('🔧','Broken Infrastructure','Doors, windows, furniture'),('💡','Electrical Issue','Lights, sockets, fans'),('🧹','Cleanliness','Garbage, dirty areas'),('🚧','Safety Hazard','Loose tiles, damaged paths'),('💻','Equipment Damage','Projectors, computers')] %}
+      <div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid #f0f0f0;{% if loop.last %}border:none{% endif %}">
+        <span style="font-size:20px;flex-shrink:0;margin-top:1px">{{ ico }}</span>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#222">{{ lbl }}</div>
+          <div style="font-size:11px;color:#888">{{ desc }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="card" style="background:#fff8f8;border-color:#f5c0c0">
+      <div style="font-size:13px;color:#c0001d;font-weight:600;margin-bottom:6px">💡 Quick Tip</div>
+      <div style="font-size:13px;color:#555;line-height:1.6">Upload a clear photo and provide the exact location — the issue will be resolved quickly!</div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+function prev(e){
+  const f=e.target.files[0];if(!f)return;
+  document.getElementById('imgprev').src=URL.createObjectURL(f);
+  document.getElementById('imgprev').style.display='block';
+  document.getElementById('drop').style.display='none';
+}
+document.getElementById('iform').addEventListener('submit',function(){
+  document.getElementById('ispin').style.display='inline-block';
+  document.getElementById('itxt').textContent='Analyzing with Gemini...';
+  document.getElementById('ibtn').disabled=true;
+});
+</script>
+{% endblock %}

@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Campus{% endblock %} — CampusEye</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+      :root{
+        --red:#c0001d;--red-dark:#8b0015;--red-light:#ffeaea;--red-mid:#e8001f;
+        --bg:#f0f0f0;--white:#ffffff;--light:#f5f5f5;--light2:#ececec;
+        --txt:#222222;--txt2:#555555;--txt3:#888888;
+        --border:#dddddd;--border2:#cccccc;
+        --blue:#1565c0;--green:#2e7d32;--amber:#e65100;
+        --shadow:0 2px 8px rgba(0,0,0,0.10);
+        --shadow2:0 4px 16px rgba(0,0,0,0.13);
+        --r:8px;--rl:12px;
+      }
+      body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;font-size:14px}
+
+      /* ── TOPBAR ── */
+      .topbar{background:var(--white);border-bottom:2px solid var(--border);padding:0 2rem;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:var(--shadow)}
+      .topbar-left{display:flex;align-items:center;gap:12px}
+      .univ-logo{width:40px;height:40px;background:var(--red);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;font-weight:700;flex-shrink:0}
+      .univ-name{font-size:15px;font-weight:700;color:var(--red);line-height:1.2}
+      .univ-sub{font-size:10px;color:var(--txt3);font-weight:400}
+      .search-wrap{flex:1;max-width:420px;margin:0 2rem}
+      .search-box{display:flex;align-items:center;background:var(--light);border:1px solid var(--border2);border-radius:20px;overflow:hidden;padding:0 14px;gap:8px}
+      .search-box input{flex:1;border:none;background:transparent;padding:8px 0;font-size:13px;font-family:'Poppins',sans-serif;outline:none;color:var(--txt)}
+      .search-box input::placeholder{color:var(--txt3)}
+      .search-icon{color:var(--txt3);font-size:15px}
+      .topbar-right{display:flex;align-items:center;gap:10px}
+      .notif-btn{position:relative;width:40px;height:40px;border-radius:50%;border:1.5px solid var(--border2);background:var(--white);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;transition:all .15s}
+      .notif-btn:hover{background:var(--light)}
+      .notif-badge{position:absolute;top:-2px;right:-2px;width:16px;height:16px;background:var(--red);border-radius:50%;font-size:9px;color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
+      .user-info{display:flex;align-items:center;gap:10px;cursor:pointer;padding:6px 10px;border-radius:var(--r);transition:background .15s}
+      .user-info:hover{background:var(--light)}
+      .user-meta{text-align:right}
+      .user-hello{font-size:12px;color:var(--txt2)}>Hello, <span style="font-weight:700;color:var(--txt)">{{ session.name.split()[0] if session.name else '' }}</span></div>
+      .user-id{font-size:11px;color:var(--txt3)}
+      .user-avatar{width:36px;height:36px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0}
+      .logout-btn{padding:6px 14px;border-radius:20px;border:1.5px solid var(--red);color:var(--red);background:transparent;font-size:12px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;transition:all .15s}
+      .logout-btn:hover{background:var(--red);color:#fff}
+
+      /* ── MAIN LAYOUT ── */
+      .page-wrap{display:flex;min-height:calc(100vh - 60px)}
+
+      /* ── SIDEBAR ── */
+      .sidebar{width:220px;background:var(--red);min-height:100%;flex-shrink:0;padding:1rem 0}
+      .sidebar-menu{list-style:none}
+      .sidebar-menu li a{display:block;padding:11px 20px;color:rgba(255,255,255,0.82);font-size:13px;font-weight:500;text-decoration:none;transition:all .15s;border-left:3px solid transparent}
+      .sidebar-menu li a:hover{background:rgba(255,255,255,0.12);color:#fff;border-left-color:rgba(255,255,255,0.6)}
+      .sidebar-menu li a.active{background:rgba(255,255,255,0.18);color:#fff;border-left-color:#fff;font-weight:600}
+      .sidebar-menu li.menu-header{padding:12px 20px 5px;font-size:10px;color:rgba(255,255,255,0.5);font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+      .sidebar-divider{border:none;border-top:1px solid rgba(255,255,255,0.15);margin:8px 0}
+      .sidebar-msg-box{background:rgba(255,255,255,0.12);margin:10px 12px;border-radius:var(--r);padding:10px 14px;border:1px solid rgba(255,255,255,0.2)}
+      .sidebar-msg-title{color:#fff;font-size:12px;font-weight:600;margin-bottom:2px}
+      .sidebar-msg-sub{color:rgba(255,255,255,0.7);font-size:11px}
+
+      /* ── CONTENT ── */
+      .content-area{flex:1;padding:1.5rem;overflow:auto}
+
+      /* ── QUICK CARDS (top row like portal) ── */
+      .quick-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:1.5rem}
+      .qcard{border-radius:var(--rl);padding:1.1rem 1.25rem;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .18s;text-decoration:none}
+      .qcard:hover{transform:translateY(-2px);box-shadow:var(--shadow2)}
+      .qcard-icon{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+      .qcard-txt{}
+      .qcard-title{font-size:13px;font-weight:600;color:var(--txt)}
+      .qcard-sub{font-size:10px;color:var(--txt2);font-weight:500;text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+      .qcard-pink{background:#fde8e8}.qcard-pink .qcard-icon{background:#f8c0c0}
+      .qcard-blue{background:#dceeff}.qcard-blue .qcard-icon{background:#b3d6f7}
+      .qcard-yellow{background:#fef9e0}.qcard-yellow .qcard-icon{background:#f5e89a}
+      .qcard-navy{background:#e0e8f5}.qcard-navy .qcard-icon{background:#4a6fa5;color:#fff}
+
+      /* ── RED BOX (main panel like portal) ── */
+      .red-panel{background:var(--red);border-radius:var(--rl);padding:0;overflow:hidden;margin-bottom:1.5rem;display:flex;min-height:260px;box-shadow:var(--shadow)}
+      .red-panel-sidebar{width:200px;flex-shrink:0;padding:10px 0}
+      .red-panel-sidebar a{display:block;padding:10px 18px;color:rgba(255,255,255,0.82);font-size:12.5px;font-weight:500;text-decoration:none;transition:all .15s;border-left:3px solid transparent}
+      .red-panel-sidebar a:hover,.red-panel-sidebar a.active{background:rgba(255,255,255,0.15);color:#fff;border-left-color:#fff}
+      .red-panel-sidebar .ps-header{padding:10px 18px 5px;font-size:10px;color:rgba(255,255,255,0.5);font-weight:600;text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid rgba(255,255,255,.15);margin-bottom:4px}
+      .red-panel-main{flex:1;background:var(--white);margin:10px 10px 10px 0;border-radius:var(--r);padding:1.25rem}
+      .panel-main-title{font-size:15px;font-weight:600;color:var(--txt);display:flex;align-items:center;gap:8px;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
+
+      /* ── TWO COL ── */
+      .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.5rem}
+
+      /* ── SECTION BOX ── */
+      .section-box{background:var(--white);border-radius:var(--rl);overflow:hidden;box-shadow:var(--shadow)}
+      .section-head{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+      .section-head-title{font-size:14px;font-weight:600;color:var(--txt);display:flex;align-items:center;gap:8px}
+      .section-head-icon{width:20px;height:20px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+      .section-body{padding:1rem 1.25rem}
+
+      /* ── CARDS ── */
+      .card{background:var(--white);border-radius:var(--rl);padding:1.5rem;margin-bottom:1.25rem;box-shadow:var(--shadow);border:1px solid var(--border)}
+      .card-title{font-size:15px;font-weight:600;color:var(--txt);margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+
+      /* ── FORM ── */
+      .label{display:block;font-size:11px;font-weight:600;color:var(--txt2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+      input[type=text],input[type=password],textarea,select{width:100%;padding:9px 13px;font-size:13px;background:var(--light);border:1px solid var(--border2);border-radius:var(--r);color:var(--txt);font-family:'Poppins',sans-serif;outline:none;transition:border-color .15s;resize:vertical}
+      input[type=text]:focus,input[type=password]:focus,textarea:focus,select:focus{border-color:var(--red);background:#fff}
+      textarea{min-height:88px}
+      .frow{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+      .frow>*{flex:1;min-width:150px}
+      .fgroup{margin-bottom:1rem}
+
+      /* ── BUTTONS ── */
+      .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 20px;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;border:none;transition:all .15s;text-decoration:none}
+      .btn-p{background:var(--red);color:#fff}
+      .btn-p:hover{background:var(--red-dark);transform:translateY(-1px)}
+      .btn-p:disabled{opacity:.5;cursor:not-allowed;transform:none}
+      .btn-s{background:var(--light);color:var(--txt2);border:1px solid var(--border2)}
+      .btn-s:hover{background:var(--light2);color:var(--txt)}
+      .btn-sm{padding:5px 12px;font-size:11px;border-radius:6px}
+
+      /* ── BADGES ── */
+      .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+      .b-red{background:#fde8e8;color:#c0001d}
+      .b-blue{background:#dceeff;color:#1565c0}
+      .b-green{background:#e8f5e9;color:#2e7d32}
+      .b-amber{background:#fff3e0;color:#e65100}
+      .b-purple{background:#ede7f6;color:#6a1b9a}
+      .b-gray{background:#f0f0f0;color:#555}
+
+      /* ── TABLE ── */
+      .tbl-wrap{overflow-x:auto}
+      table{width:100%;border-collapse:collapse;font-size:13px}
+      thead th{text-align:left;padding:10px 14px;font-size:10px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.06em;background:var(--light);border-bottom:2px solid var(--border2)}
+      tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+      tbody tr:last-child{border-bottom:none}
+      tbody tr:hover{background:#fff8f8}
+      td{padding:10px 14px;vertical-align:middle}
+
+      /* ── STATS ── */
+      .stat-grid{display:grid;gap:12px;margin-bottom:1.5rem}
+      .stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--rl);padding:1.1rem;box-shadow:var(--shadow)}
+      .stat-lbl{font-size:11px;color:var(--txt3);font-weight:500;margin-bottom:4px}
+      .stat-val{font-size:26px;font-weight:700;color:var(--txt)}
+
+      /* ── IMG DROP ── */
+      .img-drop{border:2px dashed var(--border2);border-radius:var(--r);padding:1.75rem;text-align:center;color:var(--txt3);font-size:13px;cursor:pointer;background:var(--light);transition:all .15s;margin-bottom:10px}
+      .img-drop:hover{border-color:var(--red);background:#fff8f8;color:var(--txt2)}
+      .img-preview{border-radius:var(--r);max-height:180px;width:100%;object-fit:cover;display:none;margin-bottom:10px}
+
+      /* ── RESULT ── */
+      .result-box{background:var(--light);border:1px solid var(--border2);border-left:4px solid var(--red);border-radius:var(--r);padding:1.25rem;margin-top:1rem;animation:fu .3s ease}
+      @keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+      .r-title{font-size:11px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.9rem}
+      .r-row{display:flex;gap:14px;padding:8px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+      .r-row:last-child{border-bottom:none;padding-bottom:0}
+      .r-key{font-weight:600;color:var(--txt2);min-width:155px;font-size:12px;flex-shrink:0}
+      .r-val{color:var(--txt);flex:1;line-height:1.6;font-size:13px}
+
+      /* ── FLASH ── */
+      .flashes{padding:0 1.5rem;margin-top:.75rem}
+      .flash{padding:10px 14px;border-radius:var(--r);font-size:13px;margin-bottom:6px;border-left:4px solid;animation:fi .2s ease}
+      @keyframes fi{from{opacity:0;transform:translateY(-5px)}to{opacity:1}}
+      .flash.success{background:#e8f5e9;color:var(--green);border-color:var(--green)}
+      .flash.danger{background:#fde8e8;color:var(--red);border-color:var(--red)}
+      .flash.warning{background:#fff3e0;color:var(--amber);border-color:var(--amber)}
+
+      /* ── SPINNER ── */
+      .spin{width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite;display:inline-block}
+      @keyframes sp{to{transform:rotate(360deg)}}
+
+      /* ── MODAL ── */
+      .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:none;align-items:center;justify-content:center;padding:1rem}
+      .modal-bg.open{display:flex}
+      .modal{background:var(--white);border-radius:var(--rl);padding:2rem;max-width:420px;width:100%;box-shadow:var(--shadow2);animation:fu .2s ease}
+      .modal-title{font-size:16px;font-weight:700;color:var(--txt);margin-bottom:.75rem;border-bottom:2px solid var(--red);padding-bottom:.6rem}
+      .modal-close{float:right;background:none;border:none;color:var(--txt3);cursor:pointer;font-size:20px;line-height:1}
+
+      /* ── ANNOUNCEMENT STYLE ── */
+      .announce-item{padding:12px 0;border-bottom:1px solid var(--border)}
+      .announce-item:last-child{border-bottom:none}
+      .announce-pin{color:var(--red);font-size:12px;margin-right:4px}
+      .announce-title{font-size:13px;font-weight:600;color:var(--txt)}
+      .announce-meta{font-size:11px;color:var(--txt3);margin-top:4px;display:flex;gap:12px;align-items:center}
+      .announce-body{font-size:12px;color:var(--txt2);margin-top:4px;font-style:italic}
+
+      @media(max-width:900px){.quick-cards{grid-template-columns:1fr 1fr}.two-col{grid-template-columns:1fr}}
+      @media(max-width:600px){.sidebar{display:none}.content-area{padding:1rem}.quick-cards{grid-template-columns:1fr}}
+    </style>
+    {% block head %}{% endblock %}
+  </head>
+  <body>
+    {% if session.username %}
+    <!-- ── TOPBAR ── -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="univ-logo">🎓</div>
+        <div>
+          <div class="univ-name">CampusEye</div>
+          <div class="univ-sub">Smart Campus Support System</div>
+        </div>
+      </div>
+      <div class="search-wrap">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Search here" />
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="notif-btn">🎁<span class="notif-badge">0</span></div>
+        <div
+          class="user-info"
+          onclick="document.getElementById('key-modal').classList.add('open')"
+        >
+          <div class="user-meta">
+            <div style="font-size: 12px; color: var(--txt2)">
+              Hello,
+              <strong style="color: var(--txt)"
+                >{{ session.name.split()[0] }}</strong
+              >
+              ▾
+            </div>
+            <div style="font-size: 11px; color: var(--txt3)">
+              {{ session.username|upper }}
+            </div>
+          </div>
+          <div class="user-avatar">{{ session.name[0] }}</div>
+        </div>
+        <a href="{{ url_for('logout') }}" class="logout-btn">Sign Out</a>
+      </div>
+    </div>
+
+    <!-- ── API KEY MODAL ── -->
+    <div class="modal-bg" id="key-modal">
+      <div class="modal">
+        <button
+          class="modal-close"
+          onclick="
+            document.getElementById('key-modal').classList.remove('open')
+          "
+        >
+          ×
+        </button>
+        <div class="modal-title">🔑 Set Gemini API Key</div>
+        <p style="font-size: 13px; color: var(--txt2); margin-bottom: 1rem">
+          Free key yahan se lo:
+          <a
+            href="https://aistudio.google.com/app/apikey"
+            target="_blank"
+            style="color: var(--red); font-weight: 600"
+            >aistudio.google.com</a
+          >
+        </p>
+        <div class="fgroup">
+          <span class="label">API Key</span>
+          <input type="text" id="key-input" placeholder="AIzaSy..." />
+        </div>
+        <button class="btn btn-p" style="width: 100%" onclick="saveKey()">
+          Save Key
+        </button>
+        <div id="key-status" style="font-size: 12px; margin-top: 8px"></div>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="page-wrap">
+      {% if session.username %}
+      <!-- ── LEFT SIDEBAR ── -->
+      <div class="sidebar">
+        <ul class="sidebar-menu">
+          <li class="menu-header">Navigation</li>
+          <li>
+            <a
+              href="{{ url_for('dashboard') }}"
+              class="{% if request.endpoint=='dashboard' %}active{% endif %}"
+              >🏠 Dashboard</a
+            >
+          </li>
+          <li>
+            <a
+              href="{{ url_for('lost_item') }}"
+              class="{% if request.endpoint=='lost_item' %}active{% endif %}"
+              >🔍 Lost Item Finder</a
+            >
+          </li>
+          <li>
+            <a
+              href="{{ url_for('report_issue') }}"
+              class="{% if request.endpoint=='report_issue' %}active{% endif %}"
+              >⚠️ Report Issue</a
+            >
+          </li>
+          {% if session.role=='admin' %}
+          <hr class="sidebar-divider" />
+          <li class="menu-header">Admin</li>
+          <li>
+            <a
+              href="{{ url_for('admin_dashboard') }}"
+              class="{% if request.endpoint=='admin_dashboard' %}active{% endif %}"
+              >📊 Admin Panel</a
+            >
+          </li>
+          {% endif %}
+          <hr class="sidebar-divider" />
+          <li class="menu-header">Quick Links</li>
+          <li>
+            <a
+              href="#"
+              onclick="
+                document.getElementById('key-modal').classList.add('open');
+                return false;
+              "
+              >🔑 Set API Key</a
+            >
+          </li>
+          <li><a href="{{ url_for('logout') }}">🚪 Sign Out</a></li>
+        </ul>
+      </div>
+      {% endif %}
+
+      <div style="flex: 1; display: flex; flex-direction: column">
+        <!-- FLASH -->
+        <div class="flashes">
+          {% with msgs=get_flashed_messages(with_categories=true) %} {% for
+          cat,msg in msgs %}
+          <div class="flash {{ cat }}">{{ msg }}</div>
+          {% endfor %} {% endwith %}
+        </div>
+        <div class="content-area">{% block content %}{% endblock %}</div>
+      </div>
+    </div>
+
+    <script>
+      async function saveKey() {
+        const k = document.getElementById("key-input").value.trim();
+        const s = document.getElementById("key-status");
+        const r = await fetch("/set-api-key", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: "api_key=" + encodeURIComponent(k),
+        });
+        const d = await r.json();
+        if (d.status === "ok") {
+          s.style.color = "green";
+          s.textContent = "✓ API Key saved!";
+          setTimeout(
+            () => document.getElementById("key-modal").classList.remove("open"),
+            1000,
+          );
+        } else {
+          s.style.color = "red";
+          s.textContent = "✗ " + (d.message || "Error");
+        }
+      }
+      document
+        .getElementById("key-modal")
+        ?.addEventListener("click", function (e) {
+          if (e.target === this) this.classList.remove("open");
+        });
+      setTimeout(() => {
+        document.querySelectorAll(".flash").forEach((el) => {
+          el.style.transition = "opacity .4s";
+          el.style.opacity = "0";
+          setTimeout(() => el.remove(), 400);
+        });
+      }, 4000);
+    </script>
+    {% block js %}{% endblock %}
+  </body>
+</html>

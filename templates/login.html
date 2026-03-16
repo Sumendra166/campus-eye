@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Login — CampusEye</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Poppins", sans-serif;
+        background: #f0f0f0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .top-band {
+        background: #c0001d;
+        height: 6px;
+      }
+      .login-topbar {
+        background: #fff;
+        padding: 0 2rem;
+        height: 58px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #ddd;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+      }
+      .logo-area {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .logo-box {
+        width: 38px;
+        height: 38px;
+        background: #c0001d;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        color: #fff;
+        font-weight: 700;
+      }
+      .logo-name {
+        font-size: 15px;
+        font-weight: 700;
+        color: #c0001d;
+      }
+      .logo-sub {
+        font-size: 10px;
+        color: #888;
+      }
+      .page-body {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+      }
+      .login-wrap {
+        width: 100%;
+        max-width: 420px;
+      }
+      .login-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+        overflow: hidden;
+      }
+      .login-header {
+        background: #c0001d;
+        padding: 1.75rem 2rem;
+        text-align: center;
+      }
+      .login-header h2 {
+        font-size: 20px;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 4px;
+      }
+      .login-header p {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.75);
+      }
+      .login-body {
+        padding: 1.75rem 2rem;
+      }
+      .flash {
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        margin-bottom: 1rem;
+        border-left: 3px solid;
+      }
+      .flash.danger {
+        background: #fde8e8;
+        color: #c0001d;
+        border-color: #c0001d;
+      }
+      .flash.success {
+        background: #e8f5e9;
+        color: #2e7d32;
+        border-color: #2e7d32;
+      }
+      .lbl {
+        display: block;
+        font-size: 11px;
+        font-weight: 600;
+        color: #555;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .inp {
+        width: 100%;
+        padding: 10px 14px;
+        font-size: 13px;
+        background: #f5f5f5;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        color: #222;
+        font-family: "Poppins", sans-serif;
+        outline: none;
+        transition: all 0.15s;
+        margin-bottom: 1rem;
+      }
+      .inp:focus {
+        border-color: #c0001d;
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(192, 0, 29, 0.1);
+      }
+      .btn-login {
+        width: 100%;
+        padding: 11px;
+        background: #c0001d;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: "Poppins", sans-serif;
+        transition: all 0.15s;
+      }
+      .btn-login:hover {
+        background: #8b0015;
+      }
+      .demo-sec {
+        margin-top: 1.25rem;
+        padding-top: 1.1rem;
+        border-top: 1px solid #eee;
+      }
+      .demo-lbl {
+        font-size: 10px;
+        color: #888;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-bottom: 8px;
+        text-align: center;
+      }
+      .demo-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .demo-card {
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px 12px;
+        cursor: pointer;
+        transition: all 0.15s;
+        text-align: center;
+      }
+      .demo-card:hover {
+        border-color: #c0001d;
+        background: #fff8f8;
+      }
+      .demo-role {
+        font-size: 10px;
+        color: #888;
+        text-transform: uppercase;
+        font-weight: 600;
+      }
+      .demo-user {
+        font-size: 13px;
+        color: #222;
+        font-weight: 600;
+        margin-top: 2px;
+      }
+      .demo-pass {
+        font-size: 11px;
+        color: #888;
+        font-family: monospace;
+      }
+      .footer {
+        text-align: center;
+        padding: 1rem;
+        font-size: 11px;
+        color: #aaa;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-band"></div>
+    <div class="login-topbar">
+      <div class="logo-area">
+        <div class="logo-box">🎓</div>
+        <div>
+          <div class="logo-name">CampusEye</div>
+          <div class="logo-sub">Smart Campus Support System</div>
+        </div>
+      </div>
+      <div style="font-size: 12px; color: #888">Student / Staff Login</div>
+    </div>
+    <div class="page-body">
+      <div class="login-wrap">
+        <div class="login-card">
+          <div class="login-header">
+            <h2>🎓 Campus Login</h2>
+            <p>Enter your campus credentials to continue</p>
+          </div>
+          <div class="login-body">
+            {% with msgs=get_flashed_messages(with_categories=true) %} {% for
+            cat,msg in msgs %}
+            <div class="flash {{ cat }}">{{ msg }}</div>
+            {% endfor %} {% endwith %}
+            <form method="POST">
+              <label class="lbl">Username / Enrollment No.</label>
+              <input
+                class="inp"
+                type="text"
+                name="username"
+                placeholder="Enter username"
+                required
+                autofocus
+              />
+              <label class="lbl">Password</label>
+              <input
+                class="inp"
+                type="password"
+                name="password"
+                placeholder="Enter password"
+                required
+              />
+              <button type="submit" class="btn-login">Login →</button>
+            </form>
+            <div class="demo-sec">
+              <div class="demo-lbl">Demo Accounts — click to fill</div>
+              <div class="demo-grid">
+                <div class="demo-card" onclick="fill('student1', 'pass123')">
+                  <div class="demo-role">Student</div>
+                  <div class="demo-user">student1</div>
+                  <div class="demo-pass">pass123</div>
+                </div>
+                <div class="demo-card" onclick="fill('admin', 'admin123')">
+                  <div class="demo-role">Admin</div>
+                  <div class="demo-user">admin</div>
+                  <div class="demo-pass">admin123</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="footer">
+          © 2025 UniCampus AI — Smart Campus Support System
+        </div>
+      </div>
+    </div>
+    <script>
+      function fill(u, p) {
+        document.querySelector("[name=username]").value = u;
+        document.querySelector("[name=password]").value = p;
+      }
+    </script>
+  </body>
+</html>

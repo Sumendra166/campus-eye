@@ -1,0 +1,241 @@
+{% extends "base.html" %} {% block title %}Lost Item{% endblock %} {% block
+content %}
+
+<div style="margin-bottom: 1.25rem">
+  <h2
+    style="
+      font-size: 18px;
+      font-weight: 700;
+      color: #c0001d;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    "
+  >
+    🔍 Lost Item Finder
+    <span style="font-size: 13px; font-weight: 400; color: #888"
+      >— AI-Powered Search</span
+    >
+  </h2>
+</div>
+
+<div
+  style="
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    align-items: start;
+  "
+>
+  <div>
+    <div class="card">
+      <div class="card-title">📝 Describe Your Lost Item</div>
+      <form method="POST" enctype="multipart/form-data" id="lform">
+        <div class="fgroup">
+          <span class="label">Upload Photo of Lost Item (Optional)</span>
+          <div
+            class="img-drop"
+            id="ldrop"
+            onclick="document.getElementById('limg').click()"
+          >
+            <div style="font-size: 26px; margin-bottom: 5px">📷</div>
+            <div>Upload photos</div>
+            <div style="font-size: 11px; color: #aaa; margin-top: 3px">
+              JPG, PNG — Max 5MB
+            </div>
+            <input
+              type="file"
+              id="limg"
+              name="image"
+              accept="image/*"
+              style="display: none"
+              onchange="lprev(event)"
+            />
+          </div>
+          <img
+            id="limgprev"
+            style="
+              border-radius: 8px;
+              max-height: 160px;
+              width: 100%;
+              object-fit: cover;
+              display: none;
+              margin-bottom: 10px;
+            "
+            alt="preview"
+          />
+        </div>
+        <div class="fgroup">
+          <span class="label">Description</span>
+          <textarea
+            name="description"
+            placeholder="E.g. Black leather wallet, had student ID inside, lost near library..."
+          ></textarea>
+        </div>
+        <div class="frow">
+          <div>
+            <span class="label">Category</span>
+            <select name="category">
+              <option value="">-- Select --</option>
+              <option>Wallet / Purse</option>
+              <option>ID Card</option>
+              <option>Laptop / Tablet</option>
+              <option>Phone</option>
+              <option>Keys</option>
+              <option>Bag / Backpack</option>
+              <option>Books / Notes</option>
+              <option>Earphones</option>
+              <option>Clothing</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div>
+            <span class="label">Last Seen Location</span>
+            <select name="location">
+              <option value="">-- Select --</option>
+              <option>Library</option>
+              <option>Canteen</option>
+              <option>Lecture Hall A</option>
+              <option>Lecture Hall B</option>
+              <option>Computer Lab</option>
+              <option>Sports Complex</option>
+              <option>Hostel Block</option>
+              <option>Admin Building</option>
+              <option>Parking Area</option>
+              <option>Not sure</option>
+            </select>
+          </div>
+        </div>
+        <button
+          type="submit"
+          class="btn btn-p"
+          style="margin-top: 1rem; width: 100%"
+          id="sbtn"
+        >
+          <span id="sspin" class="spin" style="display: none"></span>
+          <span id="stxt">🤖 Search with Gemini AI</span>
+        </button>
+      </form>
+    </div>
+
+    {% if result %}
+    <div class="result-box">
+      <div class="r-title">🤖 Gemini AI Analysis</div>
+      <div class="r-row">
+        <span class="r-key">Item Type</span
+        ><span class="r-val">{{ result.item_type or '—' }}</span>
+      </div>
+      <div class="r-row">
+        <span class="r-key">Possible Match</span
+        ><span class="r-val" style="color: #2e7d32; font-weight: 600"
+          >{{ result.possible_match or 'No match found' }}</span
+        >
+      </div>
+      <div class="r-row">
+        <span class="r-key">Match Confidence</span
+        ><span class="r-val">
+          {% set c=result.match_confidence %} {% if c=='High' %}<span
+            class="badge b-green"
+            >✓ High Confidence</span
+          >
+          {% elif c=='Medium' %}<span class="badge b-amber">Medium</span> {%
+          elif c=='Low' %}<span class="badge b-red">Low</span> {% else %}<span
+            class="badge b-gray"
+            >None</span
+          >{% endif %}
+        </span>
+      </div>
+      <div class="r-row">
+        <span class="r-key">Suggested Next Step</span
+        ><span class="r-val">{{ result.suggested_next_step or '—' }}</span>
+      </div>
+      {% if result.notes %}
+      <div class="r-row">
+        <span class="r-key">Notes</span
+        ><span class="r-val">{{ result.notes }}</span>
+      </div>
+      {% endif %}
+      <div
+        style="
+          margin-top: 10px;
+          padding: 10px;
+          background: #e8f5e9;
+          border-radius: 8px;
+          font-size: 13px;
+          color: #2e7d32;
+          font-weight: 500;
+        "
+      >
+        ✅ Query submitted! Dashboard aur Admin panel mein show ho rahi hai.
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <div class="card">
+      <div class="card-title">
+        📦 Found Items Database
+        <span style="font-size: 12px; font-weight: 400; color: #888"
+          >({{ found_items|length }} items)</span
+        >
+      </div>
+      {% for item in found_items %}
+      <div
+        style="padding:11px 0;border-bottom:1px solid #f0f0f0;{% if loop.last %}border:none{% endif %}"
+      >
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+          "
+        >
+          <div>
+            <div style="font-size: 13px; font-weight: 600; color: #222">
+              {{ item.item }}
+            </div>
+            <div style="font-size: 11px; color: #888; margin-top: 3px">
+              📍 {{ item.location }}
+            </div>
+            <div style="font-size: 11px; color: #aaa; margin-top: 1px">
+              🕐 {{ item.date }}
+            </div>
+          </div>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 4px;
+              align-items: flex-end;
+              flex-shrink: 0;
+            "
+          >
+            <span class="badge b-blue">{{ item.category }}</span>
+            {% if item.status=='unclaimed' %}<span class="badge b-amber"
+              >Unclaimed</span
+            >{% else %}<span class="badge b-green">Claimed</span>{% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %} {% block js %}
+<script>
+  function lprev(e) {
+    const f = e.target.files[0];
+    if (!f) return;
+    document.getElementById("limgprev").src = URL.createObjectURL(f);
+    document.getElementById("limgprev").style.display = "block";
+    document.getElementById("ldrop").style.display = "none";
+  }
+  document.getElementById("lform").addEventListener("submit", function () {
+    document.getElementById("sspin").style.display = "inline-block";
+    document.getElementById("stxt").textContent = "Searching...";
+    document.getElementById("sbtn").disabled = true;
+  });
+</script>
+{% endblock %}

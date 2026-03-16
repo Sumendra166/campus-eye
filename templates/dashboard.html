@@ -1,0 +1,269 @@
+{% extends "base.html" %} {% block title %}Dashboard{% endblock %} {% block
+content %}
+
+<div class="quick-cards">
+  <a
+    href="{{ url_for('lost_item') }}"
+    class="qcard qcard-pink"
+    style="text-decoration: none"
+  >
+    <div class="qcard-icon">🔍</div>
+    <div class="qcard-txt">
+      <div class="qcard-title">Lost Item Finder</div>
+      <div class="qcard-sub">Search Now</div>
+    </div>
+  </a>
+  <a
+    href="{{ url_for('report_issue') }}"
+    class="qcard qcard-blue"
+    style="text-decoration: none"
+  >
+    <div class="qcard-icon">⚠️</div>
+    <div class="qcard-txt">
+      <div class="qcard-title">Report Issue</div>
+      <div class="qcard-sub">Click to Report</div>
+    </div>
+  </a>
+  <div class="qcard qcard-yellow">
+    <div class="qcard-icon">📦</div>
+    <div class="qcard-txt">
+      <div class="qcard-title">Found Items DB</div>
+      <div class="qcard-sub">{{ found_items|length }} Items</div>
+    </div>
+  </div>
+  {% if session.role == 'admin' %}
+  <a
+    href="{{ url_for('admin_dashboard') }}"
+    class="qcard qcard-navy"
+    style="text-decoration: none"
+  >
+    <div class="qcard-icon" style="background: #4a6fa5; color: #fff">📊</div>
+    <div class="qcard-txt">
+      <div class="qcard-title">Admin Panel</div>
+      <div class="qcard-sub">View Details</div>
+    </div>
+  </a>
+  {% else %}
+  <div class="qcard qcard-navy">
+    <div class="qcard-icon" style="background: #4a6fa5; color: #fff">📬</div>
+    <div class="qcard-txt">
+      <div class="qcard-title">My Reports</div>
+      <div class="qcard-sub">{{ my_issues|length }} Submitted</div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<div class="red-panel">
+  <div class="red-panel-sidebar">
+    <div class="ps-header">Messages</div>
+    <a href="{{ url_for('dashboard') }}" class="active">📋 My Dashboard</a>
+    <a href="{{ url_for('lost_item') }}">🔍 Lost Item Search</a>
+    <a href="{{ url_for('report_issue') }}">⚠️ Report an Issue</a>
+  </div>
+  <div class="red-panel-main">
+    <div class="panel-main-title">📢 Important Message</div>
+    {% if my_issues %} {% set latest = my_issues[-1] %}
+    <div
+      style="
+        background: #fff8f8;
+        border: 1px solid #f5c0c0;
+        border-radius: 8px;
+        padding: 14px;
+        margin-bottom: 10px;
+      "
+    >
+      <div
+        style="
+          font-size: 12px;
+          font-weight: 600;
+          color: #c0001d;
+          margin-bottom: 4px;
+        "
+      >
+        ⚡ Your Latest Report
+      </div>
+      <div style="font-size: 13px; font-weight: 600; color: #222">
+        {{ latest.result.issue_type if latest.result else 'Issue Submitted' }}
+      </div>
+      <div style="font-size: 12px; color: #555; margin-top: 4px">
+        {{ latest.result.suggested_action if latest.result else '' }}
+      </div>
+      <div style="font-size: 11px; color: #888; margin-top: 4px">
+        📍 {{ latest.location or '—' }} &nbsp;|&nbsp; 🕐 {{ latest.date }}
+      </div>
+    </div>
+    {% elif lost_queries %} {% set latest = lost_queries[-1] %}
+    <div
+      style="
+        background: #f8fff8;
+        border: 1px solid #c0e0c0;
+        border-radius: 8px;
+        padding: 14px;
+      "
+    >
+      <div
+        style="
+          font-size: 12px;
+          font-weight: 600;
+          color: #2e7d32;
+          margin-bottom: 4px;
+        "
+      >
+        🔍 Your Latest Lost Query
+      </div>
+      <div style="font-size: 13px; font-weight: 600; color: #222">
+        {{ latest.category or 'Item' }} — {{ latest.description[:50] if
+        latest.description else '' }}
+      </div>
+      <div style="font-size: 12px; color: #555; margin-top: 4px">
+        {{ latest.result.possible_match if latest.result else '' }}
+      </div>
+      <div style="font-size: 11px; color: #888; margin-top: 4px">
+        🕐 {{ latest.date }}
+      </div>
+    </div>
+    {% else %}
+    <div
+      style="
+        background: #f9f9f9;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        color: #aaa;
+        font-size: 13px;
+      "
+    >
+      No messages yet. Use Lost Item Finder or Report Issue to get started.
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="two-col">
+  <div class="section-box">
+    <div class="section-head">
+      <div class="section-head-title">
+        <div class="section-head-icon">📦</div>
+        Found Items
+      </div>
+      <span class="badge b-red">{{ found_items|length }} Total</span>
+    </div>
+    <div class="section-body">
+      {% if found_items %} {% for item in found_items[:4] %}
+      <div
+        style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f0f0f0;{% if loop.last %}border:none{% endif %}"
+      >
+        <div>
+          <div style="font-size: 13px; font-weight: 600; color: #222">
+            {{ item.item }}
+          </div>
+          <div style="font-size: 11px; color: #888; margin-top: 2px">
+            📍 {{ item.location }} &nbsp;|&nbsp; {{ item.date }}
+          </div>
+        </div>
+        {% if item.status=='unclaimed' %}<span class="badge b-amber"
+          >Unclaimed</span
+        >{% else %}<span class="badge b-green">Claimed</span>{% endif %}
+      </div>
+      {% endfor %} {% else %}
+      <div
+        style="
+          background: #fde8e8;
+          border-radius: 8px;
+          padding: 12px 14px;
+          font-size: 13px;
+          color: #c0001d;
+          text-align: center;
+        "
+      >
+        No found items yet.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="section-box">
+    <div class="section-head">
+      <div class="section-head-title">
+        <div class="section-head-icon">📣</div>
+        My Activity
+      </div>
+    </div>
+    <div class="section-body">
+      {% if lost_queries %} {% for q in lost_queries|reverse %}
+      <div class="announce-item">
+        {% if q.image %}
+        <img
+          src="{{ url_for('static', filename='uploads/' + q.image) }}"
+          style="
+            width: 100%;
+            max-height: 120px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 6px;
+          "
+        />
+        {% endif %}
+        <div class="announce-title">
+          <span class="announce-pin">🔍</span>Lost: {{ q.category or
+          q.description[:35] }}
+        </div>
+        <div style="font-size: 12px; color: #555; margin-top: 3px">
+          {{ q.description[:60] }}{% if q.description|length>60 %}…{% endif %}
+        </div>
+        <div class="announce-meta">
+          <span>📅 {{ q.date }}</span>
+          {% set c=q.result.match_confidence if q.result else '' %} {% if
+          c=='High' %}<span class="badge b-green" style="font-size: 10px"
+            >✓ Match Found</span
+          >
+          {% elif c=='Medium' %}<span
+            class="badge b-amber"
+            style="font-size: 10px"
+            >Possible Match</span
+          >
+          {% else %}<span class="badge b-gray" style="font-size: 10px"
+            >No Match</span
+          >{% endif %}
+        </div>
+        {% if q.result and q.result.possible_match %}
+        <div class="announce-body">🎯 {{ q.result.possible_match }}</div>
+        {% endif %}
+      </div>
+      {% endfor %} {% endif %} {% if my_issues %} {% for r in my_issues|reverse
+      %}
+      <div class="announce-item">
+        <div class="announce-title">
+          <span class="announce-pin">⚠️</span>{{ r.result.issue_type if r.result
+          else 'Issue Report' }}
+        </div>
+        <div class="announce-meta">
+          <span>📅 {{ r.date }}</span>
+          {% set s=r.result.severity if r.result else '' %} {% if s=='High'
+          %}<span class="badge b-red" style="font-size: 10px">High</span> {%
+          elif s=='Medium' %}<span class="badge b-amber" style="font-size: 10px"
+            >Medium</span
+          >
+          {% else %}<span class="badge b-green" style="font-size: 10px"
+            >Low</span
+          >{% endif %}
+        </div>
+      </div>
+      {% endfor %} {% endif %} {% if not lost_queries and not my_issues %}
+      <div
+        style="
+          text-align: center;
+          padding: 1.5rem;
+          color: #aaa;
+          font-size: 13px;
+        "
+      >
+        Koi activity nahi hai abhi.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

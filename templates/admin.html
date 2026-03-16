@@ -1,0 +1,375 @@
+{% extends "base.html" %} {% block title %}Admin Panel{% endblock %} {% block
+content %}
+
+<div style="margin-bottom: 1.25rem">
+  <h2 style="font-size: 18px; font-weight: 700; color: #c0001d">
+    📊 Admin Control Panel
+  </h2>
+  <p style="font-size: 13px; color: #888; margin-top: 3px">
+    Saare reports, items aur queries manage karo.
+  </p>
+</div>
+
+<div class="stat-grid" style="grid-template-columns: repeat(4, 1fr)">
+  <div class="stat-card" style="border-top: 3px solid #c0001d">
+    <div class="stat-lbl">Total Users</div>
+    <div class="stat-val" style="color: #c0001d">{{ stats.total_users }}</div>
+  </div>
+  <div class="stat-card" style="border-top: 3px solid #1565c0">
+    <div class="stat-lbl">Found Items</div>
+    <div class="stat-val" style="color: #1565c0">{{ stats.found_items }}</div>
+  </div>
+  <div class="stat-card" style="border-top: 3px solid #e65100">
+    <div class="stat-lbl">Open Issues</div>
+    <div class="stat-val" style="color: #e65100">{{ stats.open_issues }}</div>
+  </div>
+  <div class="stat-card" style="border-top: 3px solid #c0001d">
+    <div class="stat-lbl">High Severity</div>
+    <div class="stat-val" style="color: #c0001d">{{ stats.high_severity }}</div>
+  </div>
+</div>
+<div class="stat-grid" style="grid-template-columns: repeat(3, 1fr)">
+  <div class="stat-card">
+    <div class="stat-lbl">Lost Queries</div>
+    <div class="stat-val">{{ stats.lost_queries }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-lbl">Total Reports</div>
+    <div class="stat-val">{{ stats.issue_reports }}</div>
+  </div>
+  <div class="stat-card" style="border-top: 3px solid #2e7d32">
+    <div class="stat-lbl">Resolved</div>
+    <div class="stat-val" style="color: #2e7d32">{{ stats.resolved }}</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">➕ Add Found Item to Database</div>
+  <form method="POST" action="{{ url_for('add_found_item') }}">
+    <div class="frow">
+      <div>
+        <span class="label">Item Description</span
+        ><input
+          type="text"
+          name="item"
+          placeholder="E.g. Black umbrella"
+          required
+        />
+      </div>
+      <div>
+        <span class="label">Category</span>
+        <select name="category">
+          <option>Wallet/Purse</option>
+          <option>ID Card</option>
+          <option>Laptop/Tablet</option>
+          <option>Phone</option>
+          <option>Keys</option>
+          <option>Bag/Backpack</option>
+          <option>Books/Notes</option>
+          <option>Earphones</option>
+          <option>Clothing</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div>
+        <span class="label">Found At</span
+        ><input
+          type="text"
+          name="location"
+          placeholder="E.g. Library entrance"
+          required
+        />
+      </div>
+    </div>
+    <button type="submit" class="btn btn-p" style="margin-top: 10px">
+      + Add to Database
+    </button>
+  </form>
+</div>
+
+<div class="card">
+  <div class="card-title">
+    🔍 Student Lost Queries
+    <span style="font-size: 12px; font-weight: 400; color: #888"
+      >({{ lost_queries|length }} total)</span
+    >
+  </div>
+  {% if lost_queries %}
+  <div
+    style="
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+    "
+  >
+    {% for q in lost_queries|reverse %}
+    <div
+      style="
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+      "
+    >
+      {% if q.image %}
+      <img
+        src="{{ url_for('static', filename='uploads/' + q.image) }}"
+        style="width: 100%; height: 160px; object-fit: cover"
+      />
+      {% else %}
+      <div
+        style="
+          width: 100%;
+          height: 80px;
+          background: #f5f5f5;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 32px;
+        "
+      >
+        🔍
+      </div>
+      {% endif %}
+      <div style="padding: 12px">
+        <div
+          style="
+            font-size: 13px;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 4px;
+          "
+        >
+          {{ q.category or 'Unknown Item' }}
+        </div>
+        <div style="font-size: 12px; color: #555; margin-bottom: 6px">
+          {{ q.description[:60] }}{% if q.description|length>60 %}…{% endif %}
+        </div>
+        <div style="font-size: 11px; color: #888; margin-bottom: 8px">
+          👤 {{ q.student_name or q.submitted_by }} &nbsp;|&nbsp; 📅 {{ q.date
+          }}
+        </div>
+        {% if q.result %}
+        <div
+          style="
+            background: #f9f9f9;
+            border-radius: 6px;
+            padding: 8px;
+            font-size: 12px;
+            margin-bottom: 8px;
+          "
+        >
+          <div style="font-weight: 600; color: #333; margin-bottom: 3px">
+            🤖 AI Result:
+          </div>
+          <div style="color: #2e7d32; margin-bottom: 4px">
+            {{ q.result.possible_match or 'No match' }}
+          </div>
+          {% set c=q.result.match_confidence %} {% if c=='High' %}<span
+            class="badge b-green"
+            >High Match</span
+          >
+          {% elif c=='Medium' %}<span class="badge b-amber">Medium</span> {%
+          elif c=='Low' %}<span class="badge b-red">Low</span> {% else %}<span
+            class="badge b-gray"
+            >No Match</span
+          >{% endif %}
+        </div>
+        {% endif %}
+        <div style="display: flex; gap: 6px; align-items: center">
+          {% if q.status=='resolved' %}<span class="badge b-green"
+            >Resolved</span
+          >
+          {% else %}<span class="badge b-amber">Open</span>{% endif %}
+          <button
+            class="btn btn-s btn-sm"
+            onclick="upd('lost','{{ q.id }}','resolved',this)"
+          >
+            ✓ Resolve
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div
+    style="
+      text-align: center;
+      padding: 1.5rem;
+      color: #aaa;
+      font-size: 13px;
+      background: #f9f9f9;
+      border-radius: 8px;
+    "
+  >
+    Koi lost query nahi hai abhi.
+  </div>
+  {% endif %}
+</div>
+
+<div class="card">
+  <div class="card-title">
+    ⚠️ Issue Reports
+    <span style="font-size: 12px; font-weight: 400; color: #888"
+      >({{ issue_reports|length }} total)</span
+    >
+  </div>
+  {% if issue_reports %}
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Issue Type</th>
+          <th>Location</th>
+          <th>Severity</th>
+          <th>Submitted By</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in issue_reports|reverse %}
+        <tr>
+          <td style="font-weight: 600">
+            {{ r.result.issue_type if r.result else '—' }}
+          </td>
+          <td style="color: #555">{{ r.location or '—' }}</td>
+          <td>
+            {% set s=r.result.severity if r.result else '' %}{% if s=='High'
+            %}<span class="badge b-red">High</span>{% elif s=='Medium' %}<span
+              class="badge b-amber"
+              >Medium</span
+            >{% else %}<span class="badge b-green">Low</span>{% endif %}
+          </td>
+          <td style="color: #555">{{ r.submitted_by }}</td>
+          <td style="color: #aaa; font-size: 12px">{{ r.date }}</td>
+          <td>
+            {% if r.status=='resolved' %}<span class="badge b-green"
+              >Resolved</span
+            >{% else %}<span class="badge b-amber">Open</span>{% endif %}
+          </td>
+          <td>
+            <button
+              class="btn btn-s btn-sm"
+              onclick="upd('issue','{{ r.id }}','resolved',this)"
+            >
+              ✓ Resolve
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div
+    style="
+      text-align: center;
+      padding: 1.5rem;
+      color: #aaa;
+      font-size: 13px;
+      background: #f9f9f9;
+      border-radius: 8px;
+    "
+  >
+    Koi issue report nahi hai abhi.
+  </div>
+  {% endif %}
+</div>
+
+<div class="card">
+  <div class="card-title">
+    📦 Found Items
+    <span style="font-size: 12px; font-weight: 400; color: #888"
+      >({{ found_items|length }} total)</span
+    >
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Category</th>
+          <th>Found At</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in found_items|reverse %}
+        <tr>
+          <td style="font-weight: 600">{{ item.item }}</td>
+          <td><span class="badge b-blue">{{ item.category }}</span></td>
+          <td style="color: #555">{{ item.location }}</td>
+          <td style="color: #aaa; font-size: 12px">{{ item.date }}</td>
+          <td>
+            {% if item.status=='unclaimed' %}<span class="badge b-amber"
+              >Unclaimed</span
+            >{% else %}<span class="badge b-green">Claimed</span>{% endif %}
+          </td>
+          <td>
+            <button
+              class="btn btn-s btn-sm"
+              onclick="upd('found','{{ item.id }}','claimed',this)"
+            >
+              Mark Claimed
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">👥 Registered Users</div>
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Full Name</th>
+          <th>Email</th>
+          <th>Role</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u,d in users.items() %}
+        <tr>
+          <td style="font-family: monospace; font-weight: 600">{{ u }}</td>
+          <td style="font-weight: 500">{{ d.name }}</td>
+          <td style="color: #555">{{ d.email }}</td>
+          <td>
+            {% if d.role=='admin' %}<span class="badge b-purple">Admin</span>{%
+            else %}<span class="badge b-blue">Student</span>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %} {% block js %}
+<script>
+  async function upd(type, id, status, btn) {
+    btn.disabled = true;
+    btn.textContent = "...";
+    const r = await fetch("/admin/update-status", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `type=${type}&id=${id}&status=${status}`,
+    });
+    if ((await r.json()).status === "ok") {
+      btn.textContent = "✓ Done";
+      btn.style.color = "#2e7d32";
+      btn.style.fontWeight = "600";
+    }
+  }
+</script>
+{% endblock %}
